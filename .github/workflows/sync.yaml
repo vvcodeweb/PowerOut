@@ -23,7 +23,7 @@ jobs:
         run: |
           echo "${{ secrets.GOOGLE_CREDENTIALS_JSON }}" > credentials.json
           echo "${{ secrets.GOOGLE_TOKEN_JSON }}" > token.json
-
+          
       - name: Run sync script
         env:
           GOOGLE_CREDENTIALS_FILE: credentials.json
@@ -32,6 +32,7 @@ jobs:
         run: |
           mkdir -p logs
           python main.py > logs/run.log 2>&1
+        continue-on-error: true
 
       - name: Upload run log
         uses: actions/upload-artifact@v4
