@@ -1,0 +1,41 @@
+name: Power Outage Notifier
+
+on:
+  schedule:
+    - cron: "0 3 * * *"  # 05:00 Kyiv = 03:00 UTC
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore Google credentials files
+        run: |
+          echo "${{ secrets.GOOGLE_CREDENTIALS_JSON }}" > credentials.json
+          echo "${{ secrets.GOOGLE_TOKEN_JSON }}" > token.json
+
+      - name: Run sync script
+        env:
+          GOOGLE_CREDENTIALS_FILE: credentials.json
+          GOOGLE_TOKEN_FILE: token.json
+          QUEUE_NAME: ${{ secrets.QUEUE_NAME }}
+        run: |
+          mkdir -p logs
+          python main.py > logs/run.log 2>&1
+
+      - name: Upload run log
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-log
+          path: logs/run.log
+          retention-days: 2
