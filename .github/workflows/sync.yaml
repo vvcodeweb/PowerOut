@@ -16,6 +16,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+        
       - name: Restore Google credentials files
         run: |
           echo "${{ secrets.GOOGLE_CREDENTIALS_B64 }}" | base64 --decode > credentials.json
