@@ -27,7 +27,7 @@ services:
       DOCKER_INFLUXDB_INIT_PASSWORD: adminadmin
       DOCKER_INFLUXDB_INIT_ORG: powerout
       DOCKER_INFLUXDB_INIT_BUCKET: outages
-      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: INFLUX_TOKEN
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUX_TOKEN}
     restart: unless-stopped
 
   grafana:
@@ -37,7 +37,7 @@ services:
       - "3000:3000"
     environment:
       GF_SECURITY_ADMIN_PASSWORD: adminadmin
-      INFLUX_TOKEN: change-me-token
+      INFLUX_TOKEN: ${INFLUX_TOKEN}
     volumes:
       - ./grafana/data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
