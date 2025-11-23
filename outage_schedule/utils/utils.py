@@ -1,5 +1,5 @@
 from typing import Sequence
-from models import IntervalDict
+from .models import IntervalDict
 
 def merge_adjacent_intervals(intervals: Sequence[IntervalDict]) -> list[IntervalDict]:
     if not intervals:

@@ -6,9 +6,9 @@ from datetime import datetime
 from calendar_sync.sync import calendar_sync_intervals
 from config import KYIV_TZ, get_app_config
 from http_client.client import build_browser_session
-from models import AppConfig, IntervalDict
+from utils.models import AppConfig, IntervalDict
 from power_api import PowerOutageAPI
-from utils import merge_adjacent_intervals
+from utils.utils import merge_adjacent_intervals
 
 logging.basicConfig(
     level=logging.INFO,

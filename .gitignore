@@ -1,5 +1,5 @@
 __pycache__/
-calendar_sync/token.json
-calendar_sync/credentials.json
+token.json
+credentials.json
 .venv/
 .DS_Store

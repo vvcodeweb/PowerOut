@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from zoneinfo import ZoneInfo
 
-from models import AppConfig
+from utils.models import AppConfig
 
 API_BASE_URL = "https://off.energy.mk.ua/api"
 KYIV = "Europe/Kyiv"

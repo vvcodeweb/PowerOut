@@ -36,7 +36,8 @@ jobs:
           QUEUE_NAME: ${{ secrets.QUEUE_NAME }}
         run: |
           mkdir -p logs
-          python main.py > logs/run.log 2>&1
+          cd outage_schedule
+          python main.py > ../logs/run.log 2>&1
         continue-on-error: true
 
       - name: Upload run log
