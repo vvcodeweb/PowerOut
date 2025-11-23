@@ -1,0 +1,66 @@
+
+
+version: "3.9"
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: mosquitto
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    restart: unless-stopped
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./influxdb/data:/var/lib/influxdb2
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: adminadmin
+      DOCKER_INFLUXDB_INIT_ORG: powerout
+      DOCKER_INFLUXDB_INIT_BUCKET: outages
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: INFLUX_TOKEN
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: adminadmin
+      INFLUX_TOKEN: change-me-token
+    volumes:
+      - ./grafana/data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - influxdb
+    restart: unless-stopped
+
+  listener:
+    build: .
+    container_name: powerout-listener
+    depends_on:
+      - mosquitto
+      - influxdb
+    environment:
+      MQTT_HOST: mosquitto
+      MQTT_PORT: "1883"
+      MQTT_PREFIX: shellyazplug-powerout
+      INFLUX_URL: http://influxdb:8086
+      INFLUX_TOKEN: change-me-token
+      INFLUX_ORG: powerout
+      INFLUX_BUCKET: outages
+      DB_PATH: /data/powerout.sqlite
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
