@@ -5,6 +5,10 @@ from datetime import datetime, timezone
 import paho.mqtt.client as mqtt
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 
+from logger import setup_logger
+
+logger = setup_logger(__name__)
+
 MQTT_HOST = os.getenv("MQTT_HOST", "mosquitto")
 MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
 MQTT_PREFIX = os.getenv("MQTT_PREFIX", "shellyazplug-powerout")
@@ -36,18 +40,27 @@ class Tracker:
             try:
                 p = p.field(k, float(v))
             except:
+                logger.warning(f"Failed to convert metric {k}={v} to float")
                 continue
         p = p.field("raw", raw_payload)
         p = p.time(utc_now(), WritePrecision.S)
-        self.write_api.write(bucket=self.bucket, org=self.org, record=p)
+        try:
+            self.write_api.write(bucket=self.bucket, org=self.org, record=p)
+            logger.debug(f"Wrote metrics: state={state}, metrics={metrics}")
+        except Exception as e:
+            logger.error(f"Failed to write to InfluxDB: {e}")
 
     def set_state(self, new_state, metrics, raw_payload):
+        if self.state != new_state:
+            logger.info(f"State changed: {self.state} -> {new_state}")
         self.state = new_state
         self.write_metrics(new_state, metrics, raw_payload)
 
 
 def main():
+    logger.info("Starting pi_agent listener")
     if not INFLUX_TOKEN:
+        logger.critical("INFLUX_TOKEN is required")
         raise RuntimeError("INFLUX_TOKEN is required")
 
     influx = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG)
@@ -62,11 +75,13 @@ def main():
     tracker = Tracker(write_api, INFLUX_BUCKET, INFLUX_ORG, device_tag)
 
     def on_connect(client, userdata, flags, rc, properties=None):
+        logger.info(f"Connected to MQTT broker with result code {rc}")
         client.subscribe(online_t)
         client.subscribe(status_t)
 
     def on_message(client, userdata, msg):
         raw = msg.payload.decode("utf-8", errors="ignore").strip()
+        logger.debug(f"Received message on {msg.topic}: {raw}")
 
         if msg.topic == online_t:
             state = "ON" if raw.lower() == "true" else "OFF"
@@ -76,7 +91,8 @@ def main():
         if msg.topic == status_t:
             try:
                 data = json.loads(raw)
-            except:
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse JSON from {msg.topic}: {e}")
                 return
 
             voltage = data.get("voltage")
@@ -104,9 +120,13 @@ def main():
     client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
     client.on_connect = on_connect
     client.on_message = on_message
-    client.connect(MQTT_HOST, MQTT_PORT, 60)
-    client.loop_forever()
-
+    
+    try:
+        client.connect(MQTT_HOST, MQTT_PORT, 60)
+        client.loop_forever()
+    except Exception as e:
+        logger.critical(f"MQTT connection failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()
