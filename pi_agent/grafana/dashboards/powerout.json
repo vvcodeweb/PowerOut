@@ -7,6 +7,10 @@
     "refresh": "30s",
     "tags": ["powerout", "shelly", "ukraine"],
     "time": { "from": "now-24h", "to": "now" },
+    "timepicker": {
+      "time_options": ["24h", "7d", "30d"],
+      "refresh_intervals": ["30s", "1m", "5m", "15m", "1h"]
+    },
     "annotations": {
       "list": [
         {
@@ -45,16 +49,16 @@
               {
                 "type": "value",
                 "options": {
-                  "0": { "text": "OFF" },
-                  "1": { "text": "ON" }
+                  "0": { "text": "ON" },
+                  "1": { "text": "OFF" }
                 }
               }
             ],
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                { "color": "red", "value": null },
-                { "color": "green", "value": 1 }
+                { "color": "green", "value": null },
+                { "color": "red", "value": 1 }
               ]
             }
           },
@@ -133,7 +137,7 @@
       {
         "id": 5,
         "type": "stat",
-        "title": "Uptime (last 24h)",
+        "title": "Shelly Uptime (last 24h)",
         "gridPos": { "h": 6, "w": 6, "x": 12, "y": 14 },
         "datasource": { "type": "influxdb", "uid": "InfluxDB" },
         "targets": [
