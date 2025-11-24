@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 import paho.mqtt.client as mqtt
 from influxdb_client import InfluxDBClient, Point, WritePrecision
+from influxdb_client.client.write_api import SYNCHRONOUS
 
 from logger import setup_logger
 
@@ -64,7 +65,7 @@ def main():
         raise RuntimeError("INFLUX_TOKEN is required")
 
     influx = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG)
-    write_api = influx.write_api(write_options=None)
+    write_api = influx.write_api(write_options=SYNCHRONOUS)
 
     prefix = MQTT_PREFIX
     device_tag = prefix

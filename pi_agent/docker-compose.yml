@@ -46,7 +46,7 @@ services:
       - influxdb
     restart: unless-stopped
 
-  listener:
+  powerout-listener:
     build: .
     container_name: powerout-listener
     depends_on:
@@ -57,10 +57,7 @@ services:
       MQTT_PORT: "1883"
       MQTT_PREFIX: shellyazplug-powerout
       INFLUX_URL: http://influxdb:8086
-      INFLUX_TOKEN: change-me-token
+      INFLUX_TOKEN: ${INFLUX_TOKEN}
       INFLUX_ORG: powerout
       INFLUX_BUCKET: outages
-      DB_PATH: /data/powerout.sqlite
-    volumes:
-      - ./data:/data
     restart: unless-stopped

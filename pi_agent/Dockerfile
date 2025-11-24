@@ -6,6 +6,6 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY listener.py .
+COPY listener.py logger.py ./
 
 CMD ["python", "listener.py"]
