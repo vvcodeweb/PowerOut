@@ -194,13 +194,21 @@
         "targets": [
           {
             "refId": "A",
-            "query": "import \"contrib/tomhollingworth/events\"\n\nfrom(bucket: \"outages\")\n  |> range(start: -24h)\n  |> filter(fn: (r) => r._measurement == \"power_metrics\")\n  |> filter(fn: (r) => r._field == \"state\")\n  |> filter(fn: (r) => r.device == \"shellyazplug-powerout\")\n  |> aggregateWindow(every: 1m, fn: last, createEmpty: false)\n  |> map(fn: (r) => ({ r with _value: if r._value == 1 then 0.0 else 1.0 }))\n  |> events.duration(unit: 1m)\n  |> filter(fn: (r) => r._value > 0.0)\n  |> sum()"
+            "query": "from(bucket: \"outages\")\n  |> range(start: -24h)\n  |> filter(fn: (r) => r._measurement == \"power_metrics\")\n  |> filter(fn: (r) => r._field == \"state\")\n  |> filter(fn: (r) => r.device == \"shellyazplug-powerout\")\n  |> aggregateWindow(every: 1m, fn: last, createEmpty: false)\n  |> filter(fn: (r) => r._value == 0)\n  |> count()\n  |> map(fn: (r) => ({ r with _value: float(v: r._value) }))"
           }
         ],
         "fieldConfig": {
           "defaults": {
             "unit": "m",
-            "decimals": 0
+            "decimals": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 30 },
+                { "color": "red", "value": 120 }
+              ]
+            }
           },
           "overrides": []
         },
@@ -220,13 +228,21 @@
         "targets": [
           {
             "refId": "A",
-            "query": "import \"contrib/tomhollingworth/events\"\n\nfrom(bucket: \"outages\")\n  |> range(start: -7d)\n  |> filter(fn: (r) => r._measurement == \"power_metrics\")\n  |> filter(fn: (r) => r._field == \"state\")\n  |> filter(fn: (r) => r.device == \"shellyazplug-powerout\")\n  |> aggregateWindow(every: 1m, fn: last, createEmpty: false)\n  |> map(fn: (r) => ({ r with _value: if r._value == 1 then 0.0 else 1.0 }))\n  |> events.duration(unit: 1m)\n  |> filter(fn: (r) => r._value > 0.0)\n  |> sum()\n  |> map(fn: (r) => ({ r with _value: r._value / 60.0 }))"
+            "query": "from(bucket: \"outages\")\n  |> range(start: -7d)\n  |> filter(fn: (r) => r._measurement == \"power_metrics\")\n  |> filter(fn: (r) => r._field == \"state\")\n  |> filter(fn: (r) => r.device == \"shellyazplug-powerout\")\n  |> aggregateWindow(every: 1m, fn: last, createEmpty: false)\n  |> filter(fn: (r) => r._value == 0)\n  |> count()\n  |> map(fn: (r) => ({ r with _value: float(v: r._value) / 60.0 }))"
           }
         ],
         "fieldConfig": {
           "defaults": {
             "unit": "h",
-            "decimals": 1
+            "decimals": 1,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 1 },
+                { "color": "red", "value": 4 }
+              ]
+            }
           },
           "overrides": []
         },
@@ -246,13 +262,21 @@
         "targets": [
           {
             "refId": "A",
-            "query": "import \"contrib/tomhollingworth/events\"\n\nfrom(bucket: \"outages\")\n  |> range(start: -30d)\n  |> filter(fn: (r) => r._measurement == \"power_metrics\")\n  |> filter(fn: (r) => r._field == \"state\")\n  |> filter(fn: (r) => r.device == \"shellyazplug-powerout\")\n  |> aggregateWindow(every: 1m, fn: last, createEmpty: false)\n  |> map(fn: (r) => ({ r with _value: if r._value == 1 then 0.0 else 1.0 }))\n  |> events.duration(unit: 1m)\n  |> filter(fn: (r) => r._value > 0.0)\n  |> sum()\n  |> map(fn: (r) => ({ r with _value: r._value / 60.0 }))"
+            "query": "from(bucket: \"outages\")\n  |> range(start: -30d)\n  |> filter(fn: (r) => r._measurement == \"power_metrics\")\n  |> filter(fn: (r) => r._field == \"state\")\n  |> filter(fn: (r) => r.device == \"shellyazplug-powerout\")\n  |> aggregateWindow(every: 1m, fn: last, createEmpty: false)\n  |> filter(fn: (r) => r._value == 0)\n  |> count()\n  |> map(fn: (r) => ({ r with _value: float(v: r._value) / 60.0 }))"
           }
         ],
         "fieldConfig": {
           "defaults": {
             "unit": "h",
-            "decimals": 1
+            "decimals": 1,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 4 },
+                { "color": "red", "value": 12 }
+              ]
+            }
           },
           "overrides": []
         },
