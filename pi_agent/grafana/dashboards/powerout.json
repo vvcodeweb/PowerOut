@@ -49,16 +49,16 @@
               {
                 "type": "value",
                 "options": {
-                  "0": { "text": "ON" },
-                  "1": { "text": "OFF" }
+                  "0": { "text": "OFF" },
+                  "1": { "text": "ON" }
                 }
               }
             ],
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                { "color": "green", "value": null },
-                { "color": "red", "value": 1 }
+                { "color": "red", "value": null },
+                { "color": "green", "value": 1 }
               ]
             }
           },
