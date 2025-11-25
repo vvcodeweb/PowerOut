@@ -4,3 +4,9 @@ credentials.json
 .venv/
 .DS_Store
 .env
+pi_agent/grafana/data/*
+pi_agent/influxdb/data/*
+pi_agent/influxdb/meta/*
+pi_agent/influxdb/wal/*
+pi_agent/mosquitto/data/*
+pi_agent/mosquitto/log/*
