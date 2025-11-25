@@ -105,7 +105,7 @@ def main():
             if isinstance(t, dict):
                 temp_c = t.get("tC")
 
-            state = "OFF" if voltage is not None and float(voltage) <= 5.0 else "ON"
+            state = "ON" if data.get("output") else "OFF"
 
             metrics = {
                 "voltage": voltage,
