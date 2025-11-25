@@ -5,7 +5,7 @@
     "schemaVersion": 39,
     "version": 1,
     "refresh": "30s",
-    "tags": ["powerout", "shelly", "ukraine"],
+    "tags": ["powerout", "shelly"],
     "time": { "from": "now-24h", "to": "now" },
     "timepicker": {
       "time_options": ["24h", "7d", "30d"],
@@ -49,8 +49,8 @@
               {
                 "type": "value",
                 "options": {
-                  "0": { "text": "OFF" },
-                  "1": { "text": "ON" }
+                  "0": { "text": "OFF", "color": "red" },
+                  "1": { "text": "ON", "color": "green" }
                 }
               }
             ],
@@ -194,13 +194,65 @@
         "targets": [
           {
             "refId": "A",
-            "query": "import \"contrib/tomhollingworth/events\"\n\nfrom(bucket: \"outages\")\n  |> range(start: -24h)\n  |> filter(fn: (r) => r._measurement == \"power_metrics\")\n  |> filter(fn: (r) => r._field == \"state\")\n  |> filter(fn: (r) => r.device == \"shellyazplug-powerout\")\n  |> aggregateWindow(every: 1m, fn: last, createEmpty: false)\n  |> events.duration(unit: 1m)\n  |> filter(fn: (r) => r._value > 0.0)\n  |> sum()"
+            "query": "import \"contrib/tomhollingworth/events\"\n\nfrom(bucket: \"outages\")\n  |> range(start: -24h)\n  |> filter(fn: (r) => r._measurement == \"power_metrics\")\n  |> filter(fn: (r) => r._field == \"state\")\n  |> filter(fn: (r) => r.device == \"shellyazplug-powerout\")\n  |> aggregateWindow(every: 1m, fn: last, createEmpty: false)\n  |> map(fn: (r) => ({ r with _value: if r._value == 1 then 0.0 else 1.0 }))\n  |> events.duration(unit: 1m)\n  |> filter(fn: (r) => r._value > 0.0)\n  |> sum()"
           }
         ],
         "fieldConfig": {
           "defaults": {
             "unit": "m",
             "decimals": 0
+          },
+          "overrides": []
+        },
+        "options": {
+          "reduceOptions": { "values": false, "calcs": ["lastNotNull"], "fields": "" },
+          "orientation": "auto",
+          "textMode": "auto",
+          "colorMode": "value"
+        }
+      },
+      {
+        "id": 7,
+        "type": "stat",
+        "title": "Downtime (last 7d, h)",
+        "gridPos": { "h": 6, "w": 6, "x": 18, "y": 20 },
+        "datasource": { "type": "influxdb", "uid": "InfluxDB" },
+        "targets": [
+          {
+            "refId": "A",
+            "query": "import \"contrib/tomhollingworth/events\"\n\nfrom(bucket: \"outages\")\n  |> range(start: -7d)\n  |> filter(fn: (r) => r._measurement == \"power_metrics\")\n  |> filter(fn: (r) => r._field == \"state\")\n  |> filter(fn: (r) => r.device == \"shellyazplug-powerout\")\n  |> aggregateWindow(every: 1m, fn: last, createEmpty: false)\n  |> map(fn: (r) => ({ r with _value: if r._value == 1 then 0.0 else 1.0 }))\n  |> events.duration(unit: 1m)\n  |> filter(fn: (r) => r._value > 0.0)\n  |> sum()\n  |> map(fn: (r) => ({ r with _value: r._value / 60.0 }))"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "h",
+            "decimals": 1
+          },
+          "overrides": []
+        },
+        "options": {
+          "reduceOptions": { "values": false, "calcs": ["lastNotNull"], "fields": "" },
+          "orientation": "auto",
+          "textMode": "auto",
+          "colorMode": "value"
+        }
+      },
+      {
+        "id": 8,
+        "type": "stat",
+        "title": "Downtime (last 30d, h)",
+        "gridPos": { "h": 6, "w": 6, "x": 18, "y": 26 },
+        "datasource": { "type": "influxdb", "uid": "InfluxDB" },
+        "targets": [
+          {
+            "refId": "A",
+            "query": "import \"contrib/tomhollingworth/events\"\n\nfrom(bucket: \"outages\")\n  |> range(start: -30d)\n  |> filter(fn: (r) => r._measurement == \"power_metrics\")\n  |> filter(fn: (r) => r._field == \"state\")\n  |> filter(fn: (r) => r.device == \"shellyazplug-powerout\")\n  |> aggregateWindow(every: 1m, fn: last, createEmpty: false)\n  |> map(fn: (r) => ({ r with _value: if r._value == 1 then 0.0 else 1.0 }))\n  |> events.duration(unit: 1m)\n  |> filter(fn: (r) => r._value > 0.0)\n  |> sum()\n  |> map(fn: (r) => ({ r with _value: r._value / 60.0 }))"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "h",
+            "decimals": 1
           },
           "overrides": []
         },
